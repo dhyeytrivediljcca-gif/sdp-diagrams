@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CHMS – College Hackathon Management System | Presentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #050510;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(0,243,255,0.18);
+      --cyan: #00f3ff;
+      --magenta: #ff00c1;
+      --gold: #ffd700;
+      --white: #ffffff;
+      --text-muted: rgba(255,255,255,0.6);
+      --navy: #0a0a2e;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; background: var(--bg); font-family: 'Outfit', sans-serif; color: var(--white); overflow: hidden; }
+    #bg-canvas { position: fixed; inset: 0; z-index: 0; }
+    #slideshow { position: relative; z-index: 1; width: 100vw; height: 100vh; }
+    .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 55px 70px 90px; opacity: 0; pointer-events: none; transform: translateY(40px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .slide.active { opacity: 1; pointer-events: all; transform: translateY(0); }
+    #nav-bar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; gap: 12px; align-items: center; background: rgba(5,5,16,0.85); border: 1px solid var(--border); padding: 10px 22px; border-radius: 50px; backdrop-filter: blur(20px); box-shadow: 0 0 30px rgba(0,243,255,0.15); }
+    .nav-btn { background: rgba(0,243,255,0.10); border: 1px solid var(--cyan); color: var(--cyan); padding: 8px 24px; border-radius: 30px; cursor: pointer; font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600; transition: all 0.25s; letter-spacing: 0.5px; }
+    .nav-btn:hover { background: var(--cyan); color: #050510; box-shadow: 0 0 20px rgba(0,243,255,0.5); }
+    .nav-btn.idx { border-color: var(--magenta); color: var(--magenta); background: rgba(255,0,193,0.10); }
+    .nav-btn.idx:hover { background: var(--magenta); color: #050510; box-shadow: 0 0 20px rgba(255,0,193,0.5); }
+    #slide-counter { font-size: 13px; color: var(--text-muted); min-width: 58px; text-align: center; font-weight: 500; }
+    #progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--cyan), var(--magenta)); transition: width 0.4s ease; z-index: 200; border-radius: 0 3px 3px 0; box-shadow: 0 0 12px var(--cyan); }
+    .slide-chip { position: fixed; top: 18px; right: 22px; font-size: 11px; font-weight: 700; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); z-index: 100; }
+    .slide-tag { font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 12px; background: rgba(0,243,255,0.10); padding: 4px 14px; border-radius: 20px; border: 1px solid rgba(0,243,255,0.3); }
+    h1.t { font-size: clamp(1.9rem,3.8vw,3.4rem); font-weight: 800; line-height: 1.15; text-align: center; }
+    h2.t { font-size: clamp(1.4rem,2.6vw,2.4rem); font-weight: 700; line-height: 1.2; text-align: center; }
+    .gt { background: linear-gradient(90deg,var(--cyan),var(--magenta)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .divider { width: 80px; height: 3px; background: linear-gradient(90deg,var(--cyan),var(--magenta)); border-radius: 3px; margin: 12px auto; }
+    .sub { color: var(--text-muted); font-size: .95rem; text-align: center; max-width: 700px; line-height: 1.7; }
+    .gc { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 20px; padding: 24px 28px; backdrop-filter: blur(12px); box-shadow: 0 8px 40px rgba(0,0,0,0.4); }
+    .badge { font-size: 11px; font-weight: 700; letter-spacing: 2px; padding: 5px 14px; border-radius: 20px; border: 1px solid; }
+    .bc { border-color: var(--cyan); color: var(--cyan); background: rgba(0,243,255,0.08); }
+    .bp { border-color: var(--magenta); color: var(--magenta); background: rgba(255,0,193,0.08); }
+    .bg { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.08); }
+    .badges { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 18px; }
+    .si { width: 100%; max-height: calc(100vh - 190px); overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding-bottom: 10px; }
+    .si::-webkit-scrollbar { width: 3px; }
+    .si::-webkit-scrollbar-thumb { background: rgba(0,243,255,0.3); border-radius: 3px; }
+    .diagram-figure { width: 100%; flex: 1; min-height: 0; margin-top: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+    .diagram-figure a { display: flex; justify-content: center; width: 100%; min-height: 0; }
+    .diagram-figure img { display: block; max-width: 100%; max-height: calc(100vh - 255px); width: auto; height: auto; object-fit: contain; border: 1px solid var(--border); border-radius: 12px; background: #fff; box-shadow: 0 8px 36px rgba(0,0,0,0.35); }
+    .diagram-figure figcaption { color: var(--text-muted); font-size: 11px; text-align: center; }
+    .diagram-figure.inline { flex: 0 0 auto; margin: 18px auto 8px; }
+    .diagram-figure.inline img { max-height: 52vh; }
+    .diagram-slide > :not(.slide-tag):not(h2):not(.divider):not(.diagram-figure) { display: none !important; }
+
+    /* Index */
+    .idx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 36px; max-width: 840px; width: 100%; margin-top: 12px; }
+    .idx-item { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-radius: 11px; cursor: pointer; border: 1px solid rgba(255,255,255,0.06); transition: all 0.22s; }
+    .idx-item:hover { border-color: var(--cyan); background: rgba(0,243,255,0.06); transform: translateX(4px); }
+    .idx-n { font-size: 12px; font-weight: 700; color: var(--cyan); min-width: 26px; font-family: 'JetBrains Mono',monospace; }
+    .idx-l { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 500; }
+    .idx-p { margin-left: auto; font-size: 11px; color: var(--magenta); font-weight: 700; font-family: 'JetBrains Mono',monospace; }
+
+    /* Two-col / Three-col */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 960px; }
+
+    /* Profile boxes */
+    .pb { border-left: 3px solid var(--cyan); padding-left: 16px; }
+    .pb.p { border-color: var(--magenta); }
+    .pb h3 { font-size: 14px; font-weight: 700; color: var(--cyan); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .pb.p h3 { color: var(--magenta); }
+    .pb ul { list-style: none; display: flex; flex-direction: column; gap: 7px; }
+    .pb ul li { font-size: 13px; color: rgba(255,255,255,0.72); padding-left: 14px; position: relative; line-height: 1.5; }
+    .pb ul li::before { content: '▸'; position: absolute; left: 0; color: var(--cyan); font-size: 11px; }
+    .pb.p ul li::before { color: var(--magenta); }
+
+    /* Tools */
+    .tools-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; max-width: 950px; width: 100%; }
+    .tc { text-align: center; padding: 20px 14px; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); transition: all 0.3s; }
+    .tc:hover { border-color: var(--cyan); background: rgba(0,243,255,0.06); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,243,255,0.1); }
+    .tc .ico { font-size: 30px; margin-bottom: 8px; }
+    .tc .tn { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .tc .td { font-size: 11.5px; color: var(--text-muted); }
+
+    /* Flow */
+    .fb { background: rgba(0,243,255,0.08); border: 1px solid var(--cyan); border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 600; color: var(--cyan); text-align: center; min-width: 90px; }
+    .fb.p { background: rgba(255,0,193,0.08); border-color: var(--magenta); color: var(--magenta); }
+    .fb.g { background: rgba(255,215,0,0.08); border-color: var(--gold); color: var(--gold); }
+    .fb.gr { background: rgba(0,255,128,0.08); border-color: #00ff80; color: #00ff80; }
+    .arr { font-size: 18px; color: var(--text-muted); padding: 0 6px; }
+    .flow-row { display: flex; align-items: center; gap: 0; flex-wrap: wrap; justify-content: center; }
+
+    /* Actor boxes */
+    .actor-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; max-width: 960px; width: 100%; }
+    .ab { border-radius: 16px; padding: 16px 12px; text-align: center; border: 1px solid; transition: transform 0.22s; }
+    .ab:hover { transform: scale(1.04); }
+    .ab .ai { font-size: 32px; margin-bottom: 7px; }
+    .ab .an { font-size: 13px; font-weight: 700; margin-bottom: 9px; }
+    .ab ul { list-style: none; text-align: left; font-size: 11.5px; color: rgba(255,255,255,0.62); display: flex; flex-direction: column; gap: 4px; }
+    .ab ul li::before { content: '• '; }
+    .as { border-color: var(--cyan); background: rgba(0,243,255,0.06); } .as .an { color: var(--cyan); }
+    .ac { border-color: var(--magenta); background: rgba(255,0,193,0.06); } .ac .an { color: var(--magenta); }
+    .aj { border-color: var(--gold); background: rgba(255,215,0,0.06); } .aj .an { color: var(--gold); }
+    .aa { border-color: #00ff80; background: rgba(0,255,128,0.06); } .aa .an { color: #00ff80; }
+
+    /* Class diagram */
+    .class-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; max-width: 960px; width: 100%; }
+    .cc { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; }
+    .ch { background: rgba(0,243,255,0.1); padding: 8px 13px; font-size: 13px; font-weight: 700; color: var(--cyan); border-bottom: 1px solid var(--border); }
+    .ch.p { background: rgba(255,0,193,0.1); color: var(--magenta); }
+    .ch.g { background: rgba(255,215,0,0.1); color: var(--gold); }
+    .ch.gr { background: rgba(0,255,128,0.1); color: #00ff80; }
+    .cb { padding: 9px 13px; font-size: 11px; color: rgba(255,255,255,0.63); font-family: 'JetBrains Mono',monospace; line-height: 1.7; }
+    .cs { border: none; border-top: 1px dashed rgba(255,255,255,0.08); margin: 5px 0; }
+
+    /* State */
+    .sn { border-radius: 12px; padding: 7px 16px; font-size: 12px; font-weight: 700; border: 1px solid; }
+    .sn.d { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.4); }
+    .sn.u { border-color: var(--gold); color: var(--gold); }
+    .sn.a { border-color: #00ff80; color: #00ff80; }
+    .sn.e { border-color: var(--magenta); color: var(--magenta); }
+    .srow { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+    .sarr { font-size: 11px; color: rgba(255,255,255,0.3); padding: 0 2px; }
+
+    /* Tables */
+    .dt { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 6px; }
+    .dt th { background: rgba(0,243,255,0.12); color: var(--cyan); padding: 9px 13px; text-align: left; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .dt td { padding: 8px 13px; color: rgba(255,255,255,0.72); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .dt tr:hover td { background: rgba(255,255,255,0.025); }
+    .tt { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+    .pk { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+    .fk { background: rgba(0,243,255,0.1); color: var(--cyan); border: 1px solid rgba(0,243,255,0.3); }
+    .en { background: rgba(255,0,193,0.1); color: var(--magenta); border: 1px solid rgba(255,0,193,0.3); }
+    .st { background: rgba(0,255,128,0.08); color: #00ff80; border: 1px solid rgba(0,255,128,0.2); }
+
+    /* ER */
+    .er-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 11px; max-width: 960px; width: 100%; }
+    .ee { background: rgba(0,243,255,0.04); border: 1px solid rgba(0,243,255,0.3); border-radius: 10px; overflow: hidden; }
+    .eh { background: rgba(0,243,255,0.12); padding: 7px 11px; font-size: 13px; font-weight: 700; color: var(--cyan); }
+    .eh.p { background: rgba(255,0,193,0.12); color: var(--magenta); border-color: var(--magenta); }
+    .eh.g { background: rgba(255,215,0,0.12); color: var(--gold); }
+    .eh.gr { background: rgba(0,255,128,0.12); color: #00ff80; }
+    .eb { padding: 7px 11px; font-size: 11px; color: rgba(255,255,255,0.58); font-family: 'JetBrains Mono',monospace; line-height: 1.65; }
+    .epk { color: var(--gold); }
+    .efk { color: var(--cyan); }
+
+    /* Refs */
+    .ref-list { list-style: none; display: flex; flex-direction: column; gap: 11px; max-width: 840px; width: 100%; }
+    .ri { display: flex; gap: 14px; padding: 13px 16px; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); transition: all 0.2s; }
+    .ri:hover { border-color: var(--cyan); transform: translateX(5px); }
+    .rn { font-family: 'JetBrains Mono',monospace; font-size: 13px; color: var(--cyan); font-weight: 700; min-width: 30px; }
+    .rt { font-size: 12.5px; color: rgba(255,255,255,0.72); line-height: 1.6; }
+    .rt a { color: var(--cyan); text-decoration: none; }
+    .rt a:hover { text-decoration: underline; }
+
+    /* Activity */
+    .act-col { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .an2 { border-radius: 50px; padding: 7px 18px; font-size: 12px; font-weight: 600; text-align: center; border: 1px solid; min-width: 150px; }
+    .an2.proc { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); }
+    .an2.start { background: rgba(0,243,255,0.2); border-color: var(--cyan); color: var(--cyan); border-radius: 50%; width: 44px; height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .an2.endd { background: rgba(255,0,193,0.2); border-color: var(--magenta); color: var(--magenta); border-radius: 50%; width: 44px; height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .act-arr { width: 2px; height: 18px; background: rgba(0,243,255,0.4); position: relative; }
+    .act-arr::after { content: '▼'; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); font-size: 9px; color: rgba(0,243,255,0.7); }
+
+    /* Thank you */
+    .ty-circle { width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--cyan); display: flex; align-items: center; justify-content: center; font-size: 64px; margin-bottom: 22px; box-shadow: 0 0 50px rgba(0,243,255,0.3); animation: pg 3s ease-in-out infinite; }
+    @keyframes pg { 0%,100%{box-shadow:0 0 40px rgba(0,243,255,0.3);}50%{box-shadow:0 0 80px rgba(0,243,255,0.6);} }
+
+    /* DFD */
+    .dfd-entity { background: rgba(0,243,255,0.1); border: 2px solid var(--cyan); color: var(--cyan); padding: 8px 20px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+    .dfd-store { background: rgba(255,215,0,0.08); border-top: 2px solid var(--gold); border-bottom: 2px solid var(--gold); color: var(--gold); padding: 6px 22px; font-weight: 600; font-size: 12px; }
+
+    @media(max-width:768px){
+      .slide{padding:30px 18px 90px;}
+      .two-col,.tools-grid,.actor-grid,.class-grid,.er-grid,.idx-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+<div id="progress"></div>
+<div class="slide-chip" id="chip">01 / 20</div>
+
+<div id="slideshow">
+
+<!-- ══ S1 COVER ══ -->
+<div class="slide active" id="s1">
+  <div style="font-size:54px;margin-bottom:8px;">🚀</div>
+  <div class="slide-tag">B.Sc. / BCA / B.Tech Final Year Project — 2025–26</div>
+  <h1 class="t"><span class="gt">College Hackathon</span><br>Management System</h1>
+  <div class="divider"></div>
+  <p class="sub">A centralized full-stack web platform replacing manual Google Forms, WhatsApp coordination, and Excel sheets with a seamless, role-based digital workflow for college hackathons.</p>
+  <div class="badges">
+    <span class="badge bc">React 18 + TypeScript</span>
+    <span class="badge bp">FastAPI + Python 3.13</span>
+    <span class="badge bg">PostgreSQL + JWT Auth</span>
+    <span class="badge bc">RBAC</span>
+    <span class="badge bp">SMTP Email Engine</span>
+  </div>
+  <div style="margin-top:26px;font-size:13px;color:var(--text-muted);text-align:center;">
+    <strong style="color:var(--white);">Project Guide:</strong> Prof. [Guide Name] &nbsp;|&nbsp;
+    <strong style="color:var(--white);">Submitted by:</strong> Team CHMS &nbsp;|&nbsp;
+    <strong style="color:var(--white);">Dept:</strong> Computer Science &nbsp;|&nbsp;
+    <strong style="color:var(--white);">Year:</strong> 2025–26
+  </div>
+</div>
+
+<!-- ══ S2 ACKNOWLEDGEMENT ══ -->
+<div class="slide" id="s2">
+  <div class="slide-tag">Slide 02</div>
+  <h2 class="t">Acknowledgement</h2>
+  <div class="divider"></div>
+  <div class="gc" style="max-width:820px;margin-top:20px;text-align:center;">
+    <p style="font-size:14px;line-height:1.85;color:rgba(255,255,255,0.78);margin-bottom:16px;">We express our heartfelt gratitude to our esteemed <strong style="color:var(--cyan)">Project Guide, Prof. [Guide Name]</strong>, whose insightful guidance, constant encouragement, and technical mentorship made this project a reality.</p>
+    <p style="font-size:14px;line-height:1.85;color:rgba(255,255,255,0.78);margin-bottom:16px;">We sincerely thank the <strong style="color:var(--magenta)">Head of Department, Dr. [HOD Name]</strong>, and the entire faculty of the Computer Science department for providing the necessary resources and intellectually stimulating environment.</p>
+    <p style="font-size:14px;line-height:1.85;color:rgba(255,255,255,0.78);margin-bottom:16px;">We are deeply grateful to <strong style="color:var(--gold)">[College Name]</strong> for providing institutional support, computing labs, and the opportunity to solve a real-world problem benefiting the student community.</p>
+    <p style="font-size:14px;line-height:1.85;color:rgba(255,255,255,0.78);">Finally, we thank our fellow students whose valuable feedback during alpha testing helped us refine the platform.</p>
+    <div style="margin-top:16px;font-size:1rem;color:var(--cyan);font-weight:600;">— Team CHMS, 2025–26</div>
+  </div>
+</div>
+
+<!-- ══ S3 INDEX ══ -->
+<div class="slide" id="s3">
+  <div class="slide-tag">Slide 03</div>
+  <h2 class="t">Index</h2>
+  <div class="divider"></div>
+  <div class="idx-grid">
+    <div class="idx-item" onclick="goTo(1)"><span class="idx-n">01</span><span class="idx-l">Cover Page</span><span class="idx-p">Pg 01</span></div>
+    <div class="idx-item" onclick="goTo(2)"><span class="idx-n">02</span><span class="idx-l">Acknowledgement</span><span class="idx-p">Pg 02</span></div>
+    <div class="idx-item" onclick="goTo(4)"><span class="idx-n">03</span><span class="idx-l">Existing System</span><span class="idx-p">Pg 04</span></div>
+    <div class="idx-item" onclick="goTo(5)"><span class="idx-n">04</span><span class="idx-l">Proposed System</span><span class="idx-p">Pg 05</span></div>
+    <div class="idx-item" onclick="goTo(6)"><span class="idx-n">05</span><span class="idx-l">Tools &amp; Technologies</span><span class="idx-p">Pg 06</span></div>
+    <div class="idx-item" onclick="goTo(7)"><span class="idx-n">06</span><span class="idx-l">System Flow Diagram</span><span class="idx-p">Pg 07</span></div>
+    <div class="idx-item" onclick="goTo(8)"><span class="idx-n">07</span><span class="idx-l">Use Case Diagram</span><span class="idx-p">Pg 08</span></div>
+    <div class="idx-item" onclick="goTo(9)"><span class="idx-n">08</span><span class="idx-l">Sequence Diagram</span><span class="idx-p">Pg 09</span></div>
+    <div class="idx-item" onclick="goTo(10)"><span class="idx-n">09</span><span class="idx-l">Activity Diagram</span><span class="idx-p">Pg 10</span></div>
+    <div class="idx-item" onclick="goTo(11)"><span class="idx-n">10</span><span class="idx-l">Class Diagram</span><span class="idx-p">Pg 11</span></div>
+    <div class="idx-item" onclick="goTo(12)"><span class="idx-n">11</span><span class="idx-l">State Chart Diagram</span><span class="idx-p">Pg 12</span></div>
+    <div class="idx-item" onclick="goTo(13)"><span class="idx-n">12</span><span class="idx-l">DFD Level 0 – Context</span><span class="idx-p">Pg 13</span></div>
+    <div class="idx-item" onclick="goTo(14)"><span class="idx-n">13</span><span class="idx-l">DFD Level 1 – Decomposed</span><span class="idx-p">Pg 14</span></div>
+    <div class="idx-item" onclick="goTo(15)"><span class="idx-n">14</span><span class="idx-l">ER Diagram</span><span class="idx-p">Pg 15</span></div>
+    <div class="idx-item" onclick="goTo(16)"><span class="idx-n">15</span><span class="idx-l">Data Dictionary – Users &amp; Hackathons</span><span class="idx-p">Pg 16</span></div>
+    <div class="idx-item" onclick="goTo(17)"><span class="idx-n">16</span><span class="idx-l">Data Dictionary – Teams &amp; Submissions</span><span class="idx-p">Pg 17</span></div>
+    <div class="idx-item" onclick="goTo(18)"><span class="idx-n">17</span><span class="idx-l">Data Dictionary – Notifications etc.</span><span class="idx-p">Pg 18</span></div>
+    <div class="idx-item" onclick="goTo(19)"><span class="idx-n">18</span><span class="idx-l">Bibliography / References</span><span class="idx-p">Pg 19</span></div>
+    <div class="idx-item" onclick="goTo(20)"><span class="idx-n">20</span><span class="idx-l">Thank You</span><span class="idx-p">Pg 20</span></div>
+  </div>
+</div>
+
+<!-- ══ S4 EXISTING SYSTEM ══ -->
+<div class="slide" id="s4">
+  <div class="slide-tag">Project Profile — Existing System</div>
+  <h2 class="t">Existing System</h2>
+  <div class="divider"></div>
+  <div class="two-col" style="margin-top:18px;align-items:start;">
+    <div class="gc" style="height:100%;">
+      <div class="pb">
+        <h3>🔴 Current Manual Process</h3>
+        <ul>
+          <li>Registrations via Google Forms — no validation, duplicates possible</li>
+          <li>Team formation via WhatsApp and manual email coordination</li>
+          <li>Problem statements as PDF attachments — no version control</li>
+          <li>Submissions via email — unorganized, deadline misses common</li>
+          <li>Judging on Excel sheets — no standardized rubric enforcement</li>
+          <li>Announcements via WhatsApp broadcast — not guaranteed delivery</li>
+          <li>Certificates issued manually — time-consuming and error-prone</li>
+          <li>No central dashboard — coordinators juggle 5+ tools simultaneously</li>
+        </ul>
+      </div>
+    </div>
+    <div class="gc" style="height:100%;">
+      <div class="pb p">
+        <h3>⚠️ Limitations &amp; Drawbacks</h3>
+        <ul>
+          <li>High manual effort — prone to human error and inconsistency</li>
+          <li>No role-based access — data accessible to unauthorized persons</li>
+          <li>Zero real-time visibility — no live participation metrics</li>
+          <li>Scattered data across forms, sheets, emails — no single source of truth</li>
+          <li>Difficult to scale — every hackathon restarts the process from scratch</li>
+          <li>No automated notification or reminder system</li>
+          <li>Judges have no structured feedback mechanism</li>
+          <li>No audit trail — no history of past hackathons</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S5 PROPOSED SYSTEM ══ -->
+<div class="slide" id="s5">
+  <div class="slide-tag">Project Profile — Proposed System</div>
+  <h2 class="t">Proposed System</h2>
+  <div class="divider"></div>
+  <div class="si">
+  <div class="two-col" style="margin-top:18px;align-items:start;">
+    <div class="gc" style="height:100%;">
+      <div class="pb">
+        <h3>✅ CHMS Capabilities</h3>
+        <ul>
+          <li>Centralized web platform accessible from any device via browser</li>
+          <li>RBAC with 4 roles: Student, Coordinator, Judge, Admin</li>
+          <li>Team formation with unique join codes &amp; email invitations</li>
+          <li>Structured project submission portal with repo URL &amp; demo links</li>
+          <li>Standardized evaluation rubrics with per-criterion scoring</li>
+          <li>Automated email notifications via Gmail SMTP</li>
+          <li>Dynamic certificate generation with printable templates</li>
+          <li>Admin dashboard with platform-wide analytics</li>
+        </ul>
+      </div>
+    </div>
+    <div class="gc" style="height:100%;">
+      <div class="pb p">
+        <h3>🎯 Objectives Achieved</h3>
+        <ul>
+          <li>Eliminate manual coordination — one platform for all stakeholders</li>
+          <li>End-to-end lifecycle: Draft → Upcoming → Active → Ended</li>
+          <li>Real-time notifications (Global, Team, Personal)</li>
+          <li>Dual-theme UI (Tech-Noir Dark &amp; Academic Light)</li>
+          <li>RESTful API — easily extendable and scalable</li>
+          <li>Data integrity via Pydantic schemas &amp; SQLAlchemy ORM</li>
+          <li>Deployment-ready: Vercel + Render/Railway</li>
+          <li>Reusable across multiple hackathon events without reconfiguration</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <figure class="diagram-figure inline">
+    <a href="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_17%20AM.png" target="_blank" rel="noopener" aria-label="Open CHMS system architecture diagram at full size">
+      <img src="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_17%20AM.png" alt="CHMS system architecture showing user roles, frontend, authentication, backend services, external integrations, and deployment infrastructure" loading="lazy" />
+    </a>
+    <figcaption>CHMS system architecture — click the image to open it at full size.</figcaption>
+  </figure>
+  </div>
+</div>
+
+<!-- ══ S6 TOOLS ══ -->
+<div class="slide" id="s6">
+  <div class="slide-tag">Project Profile — Tools &amp; Technologies</div>
+  <h2 class="t">Development Tools &amp; Technology Stack</h2>
+  <div class="divider"></div>
+  <div class="tools-grid" style="margin-top:20px;">
+    <div class="tc"><div class="ico">⚛️</div><div class="tn">React 18 + TypeScript</div><div class="td">SPA with hooks, Context API, and strong typing via Vite 8 + React Router</div></div>
+    <div class="tc"><div class="ico">⚡</div><div class="tn">Vite 8</div><div class="td">Lightning-fast dev server and build tool with HMR and optimized bundling</div></div>
+    <div class="tc"><div class="ico">🎨</div><div class="tn">Tailwind CSS v3.4</div><div class="td">Utility-first CSS with custom Tech-Noir glassmorphism design system tokens</div></div>
+    <div class="tc"><div class="ico">🐍</div><div class="tn">FastAPI (Python 3.13)</div><div class="td">Async REST API with automatic OpenAPI docs at /docs, Pydantic v2 schemas</div></div>
+    <div class="tc"><div class="ico">🗃️</div><div class="tn">SQLAlchemy 2.0 + Alembic</div><div class="td">ORM for database models; Alembic for version-controlled schema migrations</div></div>
+    <div class="tc"><div class="ico">🐘</div><div class="tn">PostgreSQL / SQLite</div><div class="td">SQLite for local dev; Supabase PostgreSQL for production deployment</div></div>
+    <div class="tc"><div class="ico">🔐</div><div class="tn">JWT + Passlib / Bcrypt</div><div class="td">Stateless authentication with bcrypt hashing and role-based token claims</div></div>
+    <div class="tc"><div class="ico">📧</div><div class="tn">Gmail SMTP (smtplib)</div><div class="td">Automated HTML email engine for team invitations and announcements</div></div>
+    <div class="tc"><div class="ico">🚀</div><div class="tn">Vercel + Render</div><div class="td">CI/CD deployment: Vercel for frontend, Render/Railway for backend API</div></div>
+  </div>
+</div>
+
+<!-- ══ S7 SYSTEM FLOW ══ -->
+<div class="slide diagram-slide" id="s7">
+  <div class="slide-tag">System Flow Diagram</div>
+  <h2 class="t">System Flow Diagram</h2>
+  <div class="divider"></div>
+  <figure class="diagram-figure">
+    <a href="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_34%20AM.png" target="_blank" rel="noopener" aria-label="Open system flow diagram at full size"><img src="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_34%20AM.png" alt="End-to-end CHMS system flow, including authentication and the Student, Coordinator, Judge, and Admin workflows" loading="lazy" /></a>
+    <figcaption>End-to-end system flow — click the image to open it at full size.</figcaption>
+  </figure>
+  <div class="gc" style="width:100%;max-width:900px;margin-top:18px;">
+    <div style="display:flex;flex-direction:column;gap:14px;align-items:center;">
+      <div class="flow-row"><div class="fb">User Login / Register</div><span class="arr">→</span><div class="fb">JWT Auth Middleware</div><span class="arr">→</span><div class="fb">Role Identification (RBAC)</div></div>
+      <div style="display:flex;gap:30px;flex-wrap:wrap;justify-content:center;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div class="fb" style="font-size:12px;">Student Dashboard</div><div style="height:14px;width:2px;background:rgba(0,243,255,0.4);"></div><div class="fb" style="font-size:11px;min-width:120px;">Browse→Register<br>Create/Join Team<br>Submit Project</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div class="fb p" style="font-size:12px;">Coordinator</div><div style="height:14px;width:2px;background:rgba(255,0,193,0.4);"></div><div class="fb p" style="font-size:11px;min-width:120px;">Create Hackathon<br>Manage Participants<br>Announcements</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div class="fb g" style="font-size:12px;">Judge</div><div style="height:14px;width:2px;background:rgba(255,215,0,0.4);"></div><div class="fb g" style="font-size:11px;min-width:120px;">View Assignments<br>Score Rubrics<br>Submit Feedback</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><div class="fb gr" style="font-size:12px;">Admin</div><div style="height:14px;width:2px;background:rgba(0,255,128,0.4);"></div><div class="fb gr" style="font-size:11px;min-width:120px;">Manage Users<br>Platform Metrics<br>Global Overrides</div></div>
+      </div>
+      <div class="flow-row"><div class="fb">FastAPI Backend</div><span class="arr">↔</span><div class="fb g">SQLAlchemy ORM</div><span class="arr">↔</span><div class="fb gr">PostgreSQL DB</div></div>
+      <div class="flow-row"><div class="fb p">SMTP Engine</div><span class="arr">→</span><div class="fb">Gmail Server</div><span class="arr">→</span><div class="fb gr">Recipient Inbox</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S8 USE CASE ══ -->
+<div class="slide diagram-slide" id="s8">
+  <div class="slide-tag">UML — Use Case Diagram</div>
+  <h2 class="t">Use Case Diagram</h2>
+  <div class="divider"></div>
+  <figure class="diagram-figure">
+    <a href="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_41%20AM.png" target="_blank" rel="noopener" aria-label="Open use case diagram at full size"><img src="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_41%20AM.png" alt="CHMS UML use case diagram showing Student, Coordinator, Judge, Admin, and certificate verifier interactions" loading="lazy" /></a>
+    <figcaption>UML use case diagram — click the image to open it at full size.</figcaption>
+  </figure>
+  <div class="actor-grid" style="margin-top:18px;">
+    <div class="ab as"><div class="ai">🎓</div><div class="an">«Student»</div><ul><li>Register / Login</li><li>Browse Hackathons</li><li>Create / Join Team</li><li>Accept / Decline Invite</li><li>Submit Project</li><li>View Notifications</li><li>Download Certificate</li><li>Edit Profile</li></ul></div>
+    <div class="ab ac"><div class="ai">📋</div><div class="an">«Coordinator»</div><ul><li>Create Hackathon</li><li>Add Problem Statements</li><li>Publish Announcements</li><li>View Registrations</li><li>Assign Judges</li><li>Manage Schedule</li><li>Change Hackathon Status</li><li>Issue Certificates</li></ul></div>
+    <div class="ab aj"><div class="ai">⚖️</div><div class="an">«Judge»</div><ul><li>View Assigned Teams</li><li>Review Submissions</li><li>Score Criteria</li><li>Submit Feedback</li><li>View Evaluation Status</li><li>Update Score</li></ul></div>
+    <div class="ab aa"><div class="ai">🛡️</div><div class="an">«Admin»</div><ul><li>Manage All Users</li><li>View Platform Metrics</li><li>Create / Delete Hackathons</li><li>Force-close Teams</li><li>Send Global Announcements</li><li>Generate Reports</li><li>Override Any Record</li></ul></div>
+  </div>
+  <p class="sub" style="margin-top:12px;font-size:11.5px;">«include»: Login ⊂ All Use Cases &nbsp;|&nbsp; «extend»: Email Notification ⊃ Team Invite, Announcement</p>
+</div>
+
+<!-- ══ S9 SEQUENCE ══ -->
+<div class="slide diagram-slide" id="s9">
+  <div class="slide-tag">UML — Sequence Diagram</div>
+  <h2 class="t">Sequence Diagram</h2>
+  <div class="divider"></div>
+  <figure class="diagram-figure">
+    <a href="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_48%20AM.png" target="_blank" rel="noopener" aria-label="Open sequence diagram at full size"><img src="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_48%20AM.png" alt="CHMS UML sequence diagram showing authentication, hackathon registration, team formation, submission, evaluation, and notifications" loading="lazy" /></a>
+    <figcaption>UML sequence diagram — click the image to open it at full size.</figcaption>
+  </figure>
+  <p class="sub" style="font-size:13px;margin-bottom:12px;">Student Registration &amp; Team Formation Flow</p>
+  <div class="gc" style="width:100%;max-width:880px;">
+    <div style="display:flex;gap:8px;margin-bottom:14px;justify-content:space-around;flex-wrap:wrap;">
+      <div style="background:rgba(0,243,255,0.1);border:1px solid var(--cyan);color:var(--cyan);border-radius:8px;padding:5px 12px;font-weight:600;font-size:12px;">Student</div>
+      <div style="background:rgba(255,0,193,0.1);border:1px solid var(--magenta);color:var(--magenta);border-radius:8px;padding:5px 12px;font-weight:600;font-size:12px;">React Frontend</div>
+      <div style="background:rgba(255,215,0,0.1);border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:5px 12px;font-weight:600;font-size:12px;">FastAPI Backend</div>
+      <div style="background:rgba(0,255,128,0.1);border:1px solid #00ff80;color:#00ff80;border-radius:8px;padding:5px 12px;font-weight:600;font-size:12px;">PostgreSQL</div>
+      <div style="background:rgba(255,140,0,0.1);border:1px solid #ff8c00;color:#ff8c00;border-radius:8px;padding:5px 12px;font-weight:600;font-size:12px;">SMTP Server</div>
+    </div>
+    <div style="font-size:12px;line-height:2.1;padding-left:8px;font-family:'JetBrains Mono',monospace;color:rgba(255,255,255,0.72);">
+      <div>Student ─────── POST /auth/register ──────────────────────────────▶ FastAPI</div>
+      <div style="padding-left:36px;">FastAPI ─── INSERT User ─────────────────────────────────────────▶ PostgreSQL</div>
+      <div style="padding-left:36px;color:rgba(0,243,255,0.7);">FastAPI ◀─── {user_id, JWT token} ─────────────────────────────── PostgreSQL</div>
+      <div style="color:rgba(0,243,255,0.7);">Student ◀─── 201 Created + JWT ──────────────────────────────────── FastAPI</div>
+      <div style="margin-top:6px;">Student ─────── POST /hackathons/{id}/teams ─────────────────────▶ FastAPI</div>
+      <div style="padding-left:36px;">FastAPI ─── INSERT Team + join_code ──────────────────────────────▶ PostgreSQL</div>
+      <div style="color:rgba(0,243,255,0.7);">Student ◀─── TeamResponse + join_code ──────────────────────────── FastAPI</div>
+      <div style="margin-top:6px;">Student ─────── POST /teams/{id}/invite ─────────────────────────▶ FastAPI</div>
+      <div style="padding-left:36px;">FastAPI ─── INSERT TeamInvitation ────────────────────────────────▶ PostgreSQL</div>
+      <div style="padding-left:36px;">FastAPI ──────────────────────── send_invite_email() ────────────▶ SMTP Server</div>
+      <div style="color:var(--magenta);padding-left:36px;">SMTP ─── HTML Email Delivered to Invitee ────────────────────────────────────</div>
+      <div style="color:rgba(0,243,255,0.7);">Student ◀─── 200 OK {invitation_sent: true} ───────────────────── FastAPI</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S10 ACTIVITY ══ -->
+<div class="slide diagram-slide" id="s10">
+  <div class="slide-tag">UML — Activity Diagram</div>
+  <h2 class="t">Activity Diagram</h2>
+  <div class="divider"></div>
+  <figure class="diagram-figure">
+    <a href="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_55%20AM.png" target="_blank" rel="noopener" aria-label="Open activity diagram at full size"><img src="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_35_55%20AM.png" alt="CHMS UML activity diagram with student, coordinator, judge, admin, and public certificate verification workflows" loading="lazy" /></a>
+    <figcaption>UML activity diagram — click the image to open it at full size.</figcaption>
+  </figure>
+  <p class="sub" style="font-size:13px;margin-bottom:12px;">Hackathon Submission &amp; Evaluation Flow — Three Swim Lanes</p>
+  <div class="gc" style="width:100%;max-width:920px;">
+    <div style="display:flex;gap:12px;justify-content:space-around;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0;min-width:160px;">
+        <div style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Student Lane</div>
+        <div class="an2 start">●</div><div class="act-arr"></div>
+        <div class="an2 proc">Logs In</div><div class="act-arr"></div>
+        <div class="an2 proc">Navigate to Hackathon</div><div class="act-arr"></div>
+        <div class="an2 proc">Check Team Status</div><div class="act-arr"></div>
+        <div class="an2 proc" style="border-color:var(--gold);color:var(--gold);">Team Formed?</div><div class="act-arr"></div>
+        <div class="an2 proc">Open Submission Form</div><div class="act-arr"></div>
+        <div class="an2 proc">Enter Repo + Demo URL</div><div class="act-arr"></div>
+        <div class="an2 proc">Submit Project</div><div class="act-arr"></div>
+        <div class="an2 endd">◉</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0;min-width:160px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Judge Lane</div>
+        <div class="an2 start">●</div><div class="act-arr"></div>
+        <div class="an2 proc">Logs In</div><div class="act-arr"></div>
+        <div class="an2 proc">View Assigned Teams</div><div class="act-arr"></div>
+        <div class="an2 proc">Review Submission</div><div class="act-arr"></div>
+        <div class="an2 proc">Fill Evaluation Criteria</div><div class="act-arr"></div>
+        <div class="an2 proc">Enter Score + Feedback</div><div class="act-arr"></div>
+        <div class="an2 proc">Submit Evaluation</div><div class="act-arr"></div>
+        <div class="an2 endd">◉</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:0;min-width:160px;">
+        <div style="font-size:11px;font-weight:700;color:var(--magenta);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Coordinator Lane</div>
+        <div class="an2 start">●</div><div class="act-arr"></div>
+        <div class="an2 proc">Logs In</div><div class="act-arr"></div>
+        <div class="an2 proc">End Hackathon</div><div class="act-arr"></div>
+        <div class="an2 proc">Compile All Results</div><div class="act-arr"></div>
+        <div class="an2 proc">Announce Winners</div><div class="act-arr"></div>
+        <div class="an2 proc">Generate Certificates</div><div class="act-arr"></div>
+        <div class="an2 proc">Notify Participants</div><div class="act-arr"></div>
+        <div class="an2 endd">◉</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S11 CLASS DIAGRAM ══ -->
+<div class="slide diagram-slide" id="s11">
+  <div class="slide-tag">UML — Class Diagram</div>
+  <h2 class="t">Class Diagram</h2>
+  <div class="divider"></div>
+  <figure class="diagram-figure">
+    <a href="diagrams/WhatsApp%20Image%202026-09-28%20at%208.22.17%20PM.jpeg" target="_blank" rel="noopener" aria-label="Open class diagram at full size"><img src="diagrams/WhatsApp%20Image%202026-09-28%20at%208.22.17%20PM.jpeg" alt="CHMS UML class diagram showing User, Hackathon, Team, Submission, Evaluation, Certificate, Notification, and related classes" loading="lazy" /></a>
+    <figcaption>UML class diagram — click the image to open it at full size.</figcaption>
+  </figure>
+  <div class="class-grid" style="margin-top:14px;">
+    <div class="cc"><div class="ch">User</div><div class="cb">+ id: UUID (PK)<br>+ full_name: str<br>+ email: str<br>+ role: UserRole<br>+ hashed_password: str<br>+ ps_number: str<br><hr class="cs">+ login()<br>+ update_profile()<br>+ get_notifications()</div></div>
+    <div class="cc"><div class="ch p">Hackathon</div><div class="cb">+ id: UUID (PK)<br>+ title: str<br>+ description: str<br>+ status: HackathonStatus<br>+ start_date: datetime<br>+ max_team_size: int<br><hr class="cs">+ publish()<br>+ end()<br>+ get_registrations()</div></div>
+    <div class="cc"><div class="ch g">Team</div><div class="cb">+ id: UUID (PK)<br>+ hackathon_id: UUID (FK)<br>+ leader_id: UUID (FK)<br>+ name: str<br>+ join_code: str<br>+ status: TeamStatus<br><hr class="cs">+ invite_member()<br>+ remove_member()<br>+ submit_project()</div></div>
+    <div class="cc"><div class="ch gr">Submission</div><div class="cb">+ id: UUID (PK)<br>+ team_id: UUID (FK)<br>+ hackathon_id: UUID (FK)<br>+ repo_url: str<br>+ demo_url: str<br>+ score: float<br><hr class="cs">+ evaluate()<br>+ update_score()</div></div>
+    <div class="cc"><div class="ch">TeamInvitation</div><div class="cb">+ id: UUID (PK)<br>+ team_id: UUID (FK)<br>+ invitee_id: UUID (FK)<br>+ inviter_id: UUID (FK)<br>+ status: InvitationStatus<br><hr class="cs">+ accept()<br>+ decline()<br>+ send_email()</div></div>
+    <div class="cc"><div class="ch p">Announcement</div><div class="cb">+ id: UUID (PK)<br>+ title: str<br>+ content: str<br>+ announcement_type: str<br>+ target_role: str<br>+ creator_id: UUID (FK)<br><hr class="cs">+ publish()<br>+ notify_targets()</div></div>
+  </div>
+</div>
+
+<!-- ══ S12 STATE CHART ══ -->
+<div class="slide diagram-slide" id="s12">
+  <div class="slide-tag">UML — State Chart Diagram</div>
+  <h2 class="t">State Chart Diagram</h2>
+  <div class="divider"></div>
+  <figure class="diagram-figure">
+    <a href="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_44_44%20AM.png" target="_blank" rel="noopener" aria-label="Open state chart diagram at full size"><img src="diagrams/ChatGPT%20Image%20Sep%2029,%202026,%2009_44_44%20AM.png" alt="CHMS UML state chart showing hackathon lifecycle and authentication, team formation, submission, notification, and certificate states" loading="lazy" /></a>
+    <figcaption>UML state chart diagram — click the image to open it at full size.</figcaption>
+  </figure>
+  <div class="gc" style="width:100%;max-width:900px;margin-top:18px;">
+    <div style="margin-bottom:22px;">
+      <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">① Hackathon Lifecycle</div>
+      <div class="srow"><div class="sn d">DRAFT</div><span class="sarr">──publish()──▶</span><div class="sn u">UPCOMING</div><span class="sarr">──start()──▶</span><div class="sn a">ACTIVE</div><span class="sarr">──end()──▶</span><div class="sn e">ENDED</div></div>
+      <p style="font-size:11.5px;color:var(--text-muted);margin-top:6px;text-align:center;">DRAFT: editable, hidden &nbsp;|&nbsp; UPCOMING: visible, accepting registrations &nbsp;|&nbsp; ACTIVE: submissions open &nbsp;|&nbsp; ENDED: read-only</p>
+    </div>
+    <div style="margin-bottom:22px;">
+      <div style="font-size:12px;font-weight:700;color:var(--magenta);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">② Team Invitation States</div>
+      <div class="srow"><div class="sn d">CREATED</div><span class="sarr">──send()──▶</span><div class="sn u">PENDING</div><span class="sarr">──accept()──▶</span><div class="sn a">ACCEPTED</div></div>
+      <div class="srow" style="margin-top:6px;"><div style="min-width:210px;"></div><div class="sn u">PENDING</div><span class="sarr">──decline()──▶</span><div class="sn e">DECLINED</div></div>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px;text-transform:uppercase;letter-spacing:1px;">③ Submission States</div>
+      <div class="srow"><div class="sn d">NOT SUBMITTED</div><span class="sarr">──submit()──▶</span><div class="sn u">SUBMITTED</div><span class="sarr">──evaluate()──▶</span><div class="sn a">EVALUATED</div><span class="sarr">──publish()──▶</span><div class="sn e">RESULTS OUT</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S13 DFD LEVEL 0 ══ -->
+<div class="slide diagram-slide" id="s13">
+  <div class="slide-tag">Data Flow Diagram — Level 0 (Context Diagram)</div>
+  <h2 class="t">DFD Level 0 — Context Diagram</h2>
+  <div class="divider"></div>
+  <figure class="diagram-figure">
+    <a href="diagrams/WhatsApp%20Image%202026-09-28%20at%208.43.01%20PM.jpeg" target="_blank" rel="noopener" aria-label="Open DFD Level 0 context diagram at full size"><img src="diagrams/WhatsApp%20Image%202026-09-28%20at%208.43.01%20PM.jpeg" alt="CHMS DFD Level 0 context diagram showing Student, Coordinator, Judge, Admin, and Public Certificate Verifier data flows" loading="lazy" /></a>
+    <figcaption>DFD Level 0 — context diagram. Click the image to open it at full size.</figcaption>
+  </figure>
+  <div class="gc" style="width:100%;max-width:860px;margin-top:18px;">
+    <div style="display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="dfd-entity">Student</div>
+        <div class="dfd-entity" style="background:rgba(255,0,193,0.1);border-color:var(--magenta);color:var(--magenta);">Coordinator</div>
+        <div class="dfd-entity" style="background:rgba(255,215,0,0.1);border-color:var(--gold);color:var(--gold);">Judge</div>
+        <div class="dfd-entity" style="background:rgba(0,255,128,0.1);border-color:#00ff80;color:#00ff80;">Admin</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;text-align:center;">Credentials, Team Data,<br>Submissions, Scores</div>
+        <div style="font-size:24px;">→</div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.2);border-radius:50%;width:150px;height:150px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:14px;box-shadow:0 0 40px rgba(0,243,255,0.12);">
+        🚀<br>CHMS<br><span style="font-size:11px;font-weight:400;color:var(--text-muted);">Central System</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+        <div style="font-size:24px;">→</div>
+        <div style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;text-align:center;">Results, Certs, Emails,<br>Reports, Notifications</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div class="dfd-store">D1: Users</div>
+        <div class="dfd-store">D2: Hackathons</div>
+        <div class="dfd-store">D3: Submissions</div>
+        <div class="dfd-store">D4: Notifications</div>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:11.5px;color:var(--text-muted);margin-top:16px;">CHMS is the single central process receiving all inputs from 4 user types and outputting structured data to datastores and the external SMTP email system.</p>
+  </div>
+</div>
+
+<!-- ══ S14 DFD LEVEL 1 ══ -->
+<div class="slide diagram-slide" id="s14">
+  <div class="slide-tag">Data Flow Diagram — Level 1</div>
+  <h2 class="t">DFD Level 1 — Decomposed Processes</h2>
+  <div class="divider"></div>
+  <figure class="diagram-figure">
+    <a href="diagrams/WhatsApp%20Image%202026-09-28%20at%208.44.30%20PM.jpeg" target="_blank" rel="noopener" aria-label="Open DFD Level 1 diagram at full size"><img src="diagrams/WhatsApp%20Image%202026-09-28%20at%208.44.30%20PM.jpeg" alt="CHMS DFD Level 1 showing authentication, hackathon management, registration, submissions, evaluation, notifications, and certificate processes" loading="lazy" /></a>
+    <figcaption>DFD Level 1 — functional data flow. Click the image to open it at full size.</figcaption>
+  </figure>
+  <div class="gc" style="width:100%;max-width:920px;margin-top:16px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">P1 – Authentication</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.9;font-family:'JetBrains Mono',monospace;">
+          Student → [Credentials] → P1.1 Validate Login<br>
+          P1.1 → [JWT Token] → React Client<br>
+          P1.2 Register User → D1: Users Table<br>
+          P1.3 Refresh Token → Auth Header
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--magenta);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">P2 – Hackathon Management</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.9;font-family:'JetBrains Mono',monospace;">
+          Coordinator → [Data] → P2.1 Create Hackathon<br>
+          P2.1 → D2: Hackathons Table<br>
+          P2.2 Update Status → D2<br>
+          D2 → [List] → Student Frontend
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">P3 – Team &amp; Registration</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.9;font-family:'JetBrains Mono',monospace;">
+          Student → [Team Name] → P3.1 Create Team<br>
+          Student → [Join Code] → P3.2 Join Team<br>
+          P3.3 Send Invite → D5: Invitations<br>
+          P3.3 → [Email] → SMTP → Invitee
+        </div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#00ff80;margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;">P4 – Submission &amp; Evaluation</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.9;font-family:'JetBrains Mono',monospace;">
+          Team → [Project URLs] → P4.1 Submit<br>
+          Judge → [Score] → P4.2 Evaluate → D4<br>
+          D4 → [Results] → P4.3 Compute Rank<br>
+          P4.3 → [Certificate] → Student
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ S15 ER DIAGRAM ══ -->
+<div class="slide diagram-slide" id="s15">
+  <div class="slide-tag">Entity Relationship Diagram</div>
+  <h2 class="t">ER Diagram</h2>
+  <div class="divider"></div>
+  <figure class="diagram-figure">
+    <a href="diagrams/WhatsApp%20Image%202026-09-28%20at%208.24.27%20PM.jpeg" target="_blank" rel="noopener" aria-label="Open ER diagram at full size"><img src="diagrams/WhatsApp%20Image%202026-09-28%20at%208.24.27%20PM.jpeg" alt="CHMS entity relationship diagram showing users, hackathons, teams, registrations, submissions, evaluations, certificates, notifications, and their relationships" loading="lazy" /></a>
+    <figcaption>CHMS ER diagram — click the image to open it at full size.</figcaption>
+  </figure>
+  <div class="si">
+    <div class="er-grid" style="margin-top:12px;">
+      <div class="ee"><div class="eh">USER</div><div class="eb"><span class="epk">PK id: UUID</span><br>full_name: VARCHAR<br>email: UNIQUE<br>role: ENUM<br>hashed_password: TEXT<br>ps_number: VARCHAR</div></div>
+      <div class="ee"><div class="eh p">HACKATHON</div><div class="eb"><span class="epk">PK id: UUID</span><br>title: VARCHAR<br>description: TEXT<br>status: ENUM<br>start_date: DATETIME<br>max_team_size: INT</div></div>
+      <div class="ee"><div class="eh g">TEAM</div><div class="eb"><span class="epk">PK id: UUID</span><br><span class="efk">FK hackathon_id</span><br><span class="efk">FK leader_id→User</span><br>name: VARCHAR<br>join_code: VARCHAR<br>status: ENUM</div></div>
+      <div class="ee"><div class="eh gr">SUBMISSION</div><div class="eb"><span class="epk">PK id: UUID</span><br><span class="efk">FK team_id</span><br><span class="efk">FK hackathon_id</span><br>repo_url: TEXT<br>demo_url: TEXT<br>score: FLOAT</div></div>
+      <div class="ee"><div class="eh">REGISTRATION</div><div class="eb"><span class="epk">PK id: UUID</span><br><span class="efk">FK user_id</span><br><span class="efk">FK hackathon_id</span><br><span class="efk">FK team_id</span><br>registered_at: DATETIME<br>status: ENUM</div></div>
+      <div class="ee"><div class="eh p">INVITATION</div><div class="eb"><span class="epk">PK id: UUID</span><br><span class="efk">FK team_id</span><br><span class="efk">FK invitee_id</span><br><span class="efk">FK inviter_id</span><br>status: ENUM<br>created_at: DATETIME</div></div>
+      <div class="ee"><div class="eh g">NOTIFICATION</div><div class="eb"><span class="epk">PK id: UUID</span><br><span class="efk">FK user_id</span><br>title: VARCHAR<br>message: TEXT<br>type: ENUM<br>read: BOOLEAN</div></div>
+      <div class="ee"><div class="eh gr">ANNOUNCEMENT</div><div class="eb"><span class="epk">PK id: UUID</span><br><span class="efk">FK creator_id</span><br>title: VARCHAR<br>content: TEXT<br>type: ENUM<br>target_role: ENUM</div></div>
+    </div>
+    <div style="margin-top:14px;font-size:11.5px;color:var(--text-muted);text-align:center;font-family:'JetBrains Mono',monospace;">
+      USER 1──* TEAM &nbsp;|&nbsp; HACKATHON 1──* TEAM &nbsp;|&nbsp; TEAM 1──1 SUBMISSION &nbsp;|&nbsp; USER 1──* REGISTRATION &nbsp;|&nbsp; USER 1──* INVITATION
+    </div>
+  </div>
+</div>
+
+<!-- ══ S16 DATA DICT 1 ══ -->
+<div class="slide" id="s16">
+  <div class="slide-tag">Data Dictionary — Table Design (1/3)</div>
+  <h2 class="t">Data Dictionary — Users &amp; Hackathons</h2>
+  <div class="divider"></div>
+  <div class="si">
+    <p style="font-size:13px;font-weight:700;color:var(--cyan);margin:12px 0 6px;align-self:flex-start;">Table: users</p>
+    <table class="dt" style="max-width:880px;">
+      <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+      <tr><td>id</td><td><span class="tt pk">UUID PK</span></td><td>NOT NULL, DEFAULT gen_uuid()</td><td>Unique user identifier</td></tr>
+      <tr><td>full_name</td><td><span class="tt st">VARCHAR(100)</span></td><td>NOT NULL</td><td>Student or staff full name</td></tr>
+      <tr><td>email</td><td><span class="tt st">VARCHAR(255)</span></td><td>UNIQUE, NOT NULL</td><td>Login email address</td></tr>
+      <tr><td>role</td><td><span class="tt en">ENUM</span></td><td>student|coordinator|judge|admin</td><td>RBAC role assignment</td></tr>
+      <tr><td>hashed_password</td><td><span class="tt st">TEXT</span></td><td>NOT NULL</td><td>Bcrypt hashed password</td></tr>
+      <tr><td>ps_number</td><td><span class="tt st">VARCHAR(20)</span></td><td>NULLABLE</td><td>Permanent seat number</td></tr>
+      <tr><td>avatar_url</td><td><span class="tt st">TEXT</span></td><td>NULLABLE</td><td>Profile picture URL</td></tr>
+    </table>
+    <p style="font-size:13px;font-weight:700;color:var(--magenta);margin:14px 0 6px;align-self:flex-start;">Table: hackathons</p>
+    <table class="dt" style="max-width:880px;">
+      <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+      <tr><td>id</td><td><span class="tt pk">UUID PK</span></td><td>NOT NULL</td><td>Hackathon identifier</td></tr>
+      <tr><td>title</td><td><span class="tt st">VARCHAR(200)</span></td><td>NOT NULL</td><td>Hackathon display title</td></tr>
+      <tr><td>description</td><td><span class="tt st">TEXT</span></td><td>NULLABLE</td><td>Detailed hackathon description</td></tr>
+      <tr><td>status</td><td><span class="tt en">ENUM</span></td><td>DRAFT|UPCOMING|ACTIVE|ENDED</td><td>Hackathon lifecycle state</td></tr>
+      <tr><td>start_date</td><td><span class="tt st">DATETIME</span></td><td>NOT NULL</td><td>Hackathon start timestamp</td></tr>
+      <tr><td>end_date</td><td><span class="tt st">DATETIME</span></td><td>NOT NULL</td><td>Hackathon end timestamp</td></tr>
+      <tr><td>max_team_size</td><td><span class="tt st">INTEGER</span></td><td>DEFAULT 4</td><td>Max members per team</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══ S17 DATA DICT 2 ══ -->
+<div class="slide" id="s17">
+  <div class="slide-tag">Data Dictionary — Table Design (2/3)</div>
+  <h2 class="t">Data Dictionary — Teams &amp; Submissions</h2>
+  <div class="divider"></div>
+  <div class="si">
+    <p style="font-size:13px;font-weight:700;color:var(--gold);margin:12px 0 6px;align-self:flex-start;">Table: teams</p>
+    <table class="dt" style="max-width:880px;">
+      <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+      <tr><td>id</td><td><span class="tt pk">UUID PK</span></td><td>NOT NULL</td><td>Team identifier</td></tr>
+      <tr><td>hackathon_id</td><td><span class="tt fk">UUID FK</span></td><td>REF hackathons.id</td><td>Parent hackathon</td></tr>
+      <tr><td>leader_id</td><td><span class="tt fk">UUID FK</span></td><td>REF users.id</td><td>Team leader user</td></tr>
+      <tr><td>name</td><td><span class="tt st">VARCHAR(100)</span></td><td>NOT NULL</td><td>Team display name</td></tr>
+      <tr><td>join_code</td><td><span class="tt st">VARCHAR(20)</span></td><td>UNIQUE</td><td>Auto-generated join code</td></tr>
+      <tr><td>status</td><td><span class="tt en">ENUM</span></td><td>FORMING|READY|LOCKED</td><td>Team formation status</td></tr>
+      <tr><td>problem_statement_id</td><td><span class="tt fk">UUID FK</span></td><td>NULLABLE</td><td>Assigned problem statement</td></tr>
+    </table>
+    <p style="font-size:13px;font-weight:700;color:#00ff80;margin:14px 0 6px;align-self:flex-start;">Table: submissions</p>
+    <table class="dt" style="max-width:880px;">
+      <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+      <tr><td>id</td><td><span class="tt pk">UUID PK</span></td><td>NOT NULL</td><td>Submission identifier</td></tr>
+      <tr><td>team_id</td><td><span class="tt fk">UUID FK</span></td><td>REF teams.id</td><td>Submitting team</td></tr>
+      <tr><td>hackathon_id</td><td><span class="tt fk">UUID FK</span></td><td>REF hackathons.id</td><td>Parent hackathon</td></tr>
+      <tr><td>repo_url</td><td><span class="tt st">TEXT</span></td><td>NOT NULL</td><td>GitHub / GitLab repo link</td></tr>
+      <tr><td>demo_url</td><td><span class="tt st">TEXT</span></td><td>NULLABLE</td><td>Live demo URL</td></tr>
+      <tr><td>score</td><td><span class="tt st">FLOAT</span></td><td>DEFAULT NULL</td><td>Final computed score</td></tr>
+      <tr><td>status</td><td><span class="tt en">ENUM</span></td><td>SUBMITTED|EVALUATED</td><td>Evaluation state</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ══ S18 DATA DICT 3 ══ -->
+<div class="slide" id="s18">
+  <div class="slide-tag">Data Dictionary — Table Design (3/3)</div>
+  <h2 class="t">Data Dictionary — Notifications &amp; Certificates</h2>
+  <div class="divider"></div>
+  <div class="si">
+    <p style="font-size:13px;font-weight:700;color:var(--cyan);margin:12px 0 6px;align-self:flex-start;">Table: team_invitations</p>
+    <table class="dt" style="max-width:880px;">
+      <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+      <tr><td>id</td><td><span class="tt pk">UUID PK</span></td><td>NOT NULL</td><td>Invitation identifier</td></tr>
+      <tr><td>team_id</td><td><span class="tt fk">UUID FK</span></td><td>REF teams.id</td><td>Target team</td></tr>
+      <tr><td>invitee_id</td><td><span class="tt fk">UUID FK</span></td><td>REF users.id</td><td>Invited student</td></tr>
+      <tr><td>inviter_id</td><td><span class="tt fk">UUID FK</span></td><td>REF users.id</td><td>Team leader who invited</td></tr>
+      <tr><td>status</td><td><span class="tt en">ENUM</span></td><td>PENDING|ACCEPTED|DECLINED</td><td>Invitation state</td></tr>
+    </table>
+    <p style="font-size:13px;font-weight:700;color:var(--magenta);margin:14px 0 6px;align-self:flex-start;">Table: notifications</p>
+    <table class="dt" style="max-width:880px;">
+      <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+      <tr><td>id</td><td><span class="tt pk">UUID PK</span></td><td>NOT NULL</td><td>Notification identifier</td></tr>
+      <tr><td>user_id</td><td><span class="tt fk">UUID FK</span></td><td>REF users.id</td><td>Notification recipient</td></tr>
+      <tr><td>title</td><td><span class="tt st">VARCHAR(200)</span></td><td>NOT NULL</td><td>Notification heading</td></tr>
+      <tr><td>type</td><td><span class="tt en">ENUM</span></td><td>INFO|WARNING|SUCCESS|ERROR</td><td>Visual category</td></tr>
+      <tr><td>read</td><td><span class="tt st">BOOLEAN</span></td><td>DEFAULT FALSE</td><td>Read / unread state</td></tr>
+    </table>
+    <p style="font-size:13px;font-weight:700;color:var(--gold);margin:14px 0 6px;align-self:flex-start;">Table: certificates</p>
+    <table class="dt" style="max-width:880px;">
+      <tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr>
+      <tr><td>id</td><td><span class="tt pk">UUID PK</span></td><td>NOT NULL</td><td>Certificate identifier</td></tr>
+      <tr><td>user_id</td><td><span class="tt fk">UUID FK</span></td><td>REF users.id</td><td>Certificate recipient</td></tr>
+      <tr><td>hackathon_id</td><td><span class="tt fk">UUID FK</span></td><td>REF hackathons.id</td><td>Issued for hackathon</td></tr>
+      <tr><td>certificate_type</td><td><span class="tt en">ENUM</span></td><td>PARTICIPATION|WINNER|RUNNER_UP</td><td>Award category</td></tr>
+      <tr><td>issued_at</td><td><span class="tt st">DATETIME</span></td><td>DEFAULT now()</td><td>Issue timestamp</td></tr>
+    </table>
+    <figure class="diagram-figure inline">
+      <a href="diagrams/WhatsApp%20Image%202026-09-28%20at%208.25.51%20PM.jpeg" target="_blank" rel="noopener" aria-label="Open database data dictionary diagram at full size"><img src="diagrams/WhatsApp%20Image%202026-09-28%20at%208.25.51%20PM.jpeg" alt="CHMS database data dictionary visual summarizing core entity tables, fields, types, keys, and relationships" loading="lazy" /></a>
+      <figcaption>Database data dictionary visual — click the image to open it at full size.</figcaption>
+    </figure>
+  </div>
+</div>
+
+<!-- ══ S19 BIBLIOGRAPHY ══ -->
+<div class="slide" id="s19">
+  <div class="slide-tag">Bibliography / References</div>
+  <h2 class="t">Bibliography &amp; References</h2>
+  <div class="divider"></div>
+  <div class="si">
+    <ul class="ref-list" style="margin-top:12px;">
+      <li class="ri"><span class="rn">[1]</span><span class="rt">FastAPI Official Documentation — <em>Tiangolo</em>, 2024. <a href="https://fastapi.tiangolo.com" target="_blank">https://fastapi.tiangolo.com</a></span></li>
+      <li class="ri"><span class="rn">[2]</span><span class="rt">React Documentation — <em>Meta Open Source</em>, 2024. <a href="https://react.dev" target="_blank">https://react.dev</a></span></li>
+      <li class="ri"><span class="rn">[3]</span><span class="rt">SQLAlchemy ORM Documentation v2.0 — <em>SQLAlchemy Project</em>, 2024. <a href="https://docs.sqlalchemy.org/en/20/" target="_blank">https://docs.sqlalchemy.org</a></span></li>
+      <li class="ri"><span class="rn">[4]</span><span class="rt">Pydantic v2 Documentation — <em>Pydantic Team</em>, 2024. <a href="https://docs.pydantic.dev/latest/" target="_blank">https://docs.pydantic.dev</a></span></li>
+      <li class="ri"><span class="rn">[5]</span><span class="rt">Tailwind CSS Documentation v3.4 — <em>Tailwind Labs</em>, 2024. <a href="https://tailwindcss.com/docs" target="_blank">https://tailwindcss.com</a></span></li>
+      <li class="ri"><span class="rn">[6]</span><span class="rt">JWT Introduction — JSON Web Tokens. <a href="https://jwt.io/introduction" target="_blank">https://jwt.io</a></span></li>
+      <li class="ri"><span class="rn">[7]</span><span class="rt">Alembic Migration Documentation — <em>SQLAlchemy Project</em>, 2024. <a href="https://alembic.sqlalchemy.org" target="_blank">https://alembic.sqlalchemy.org</a></span></li>
+      <li class="ri"><span class="rn">[8]</span><span class="rt">Vite Build Tool Documentation — <em>Evan You et al.</em>, 2024. <a href="https://vitejs.dev" target="_blank">https://vitejs.dev</a></span></li>
+      <li class="ri"><span class="rn">[9]</span><span class="rt">Pressman, R.S. — <em>Software Engineering: A Practitioner's Approach</em>, 9th Ed., McGraw-Hill, 2020.</span></li>
+      <li class="ri"><span class="rn">[10]</span><span class="rt">Sommerville, I. — <em>Software Engineering</em>, 10th Ed., Pearson, 2016.</span></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ══ S20 THANK YOU ══ -->
+<div class="slide" id="s20">
+  <div class="ty-circle">🙏</div>
+  <div class="slide-tag">End of Presentation</div>
+  <h1 class="t"><span class="gt">Thank You!</span></h1>
+  <div class="divider"></div>
+  <p class="sub">We appreciate your time and attention. The <strong style="color:var(--cyan)">College Hackathon Management System (CHMS)</strong> is designed to transform the way colleges organize and run hackathons — making the experience seamless, transparent, and rewarding for all stakeholders.</p>
+  <div class="badges" style="margin-top:22px;">
+    <span class="badge bc">Questions Welcome</span>
+    <span class="badge bp">Open for Feedback</span>
+    <span class="badge bg">Live Demo Available</span>
+  </div>
+  <div style="margin-top:28px;font-size:14px;color:var(--text-muted);text-align:center;">
+    <strong style="color:var(--white);">Team CHMS</strong> &nbsp;|&nbsp; Computer Science Department &nbsp;|&nbsp; 2025–26<br>
+    <span style="color:var(--cyan);margin-top:8px;display:block;">🚀 github.com/[your-repo] &nbsp;|&nbsp; Live: https://chms-app.vercel.app</span>
+  </div>
+</div>
+
+</div><!-- /slideshow -->
+
+<!-- NAV BAR -->
+<div id="nav-bar">
+  <button class="nav-btn" onclick="prev()">◀ Prev</button>
+  <button class="nav-btn idx" onclick="goTo(3)">⊞ Index</button>
+  <span id="slide-counter">1 / 20</span>
+  <button class="nav-btn" onclick="next()">Next ▶</button>
+</div>
+
+<script>
+  const TOTAL = 20;
+  let cur = 1;
+  function goTo(n) {
+    document.getElementById('s'+cur)?.classList.remove('active');
+    cur = Math.max(1,Math.min(TOTAL,n));
+    document.getElementById('s'+cur)?.classList.add('active');
+    document.getElementById('slide-counter').textContent = cur+' / '+TOTAL;
+    document.getElementById('chip').textContent = String(cur).padStart(2,'0')+' / '+String(TOTAL).padStart(2,'0');
+    document.getElementById('progress').style.width = ((cur/TOTAL)*100)+'%';
+  }
+  function next(){ goTo(cur+1); }
+  function prev(){ goTo(cur-1); }
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '){e.preventDefault();next();}
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();prev();}
+    if(e.key==='i'||e.key==='I')goTo(3);
+    if(e.key==='Home')goTo(1);
+    if(e.key==='End')goTo(TOTAL);
+  });
+  let tx=0;
+  document.addEventListener('touchstart',e=>{tx=e.changedTouches[0].clientX;});
+  document.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50){d<0?next():prev();}});
+  goTo(1);
+
+  // Particle canvas
+  const cv=document.getElementById('bg-canvas'),cx=cv.getContext('2d');
+  let W=cv.width=window.innerWidth,H=cv.height=window.innerHeight;
+  window.addEventListener('resize',()=>{W=cv.width=window.innerWidth;H=cv.height=window.innerHeight;});
+  const N=80,P=Array.from({length:N},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:Math.random()*1.4+.4,a:Math.random()*.45+.1,c:Math.random()>.5?'0,243,255':'255,0,193'}));
+  function draw(){
+    cx.clearRect(0,0,W,H);
+    for(let i=0;i<N;i++){
+      const p=P[i];p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;
+      cx.beginPath();cx.arc(p.x,p.y,p.r,0,Math.PI*2);cx.fillStyle=`rgba(${p.c},${p.a})`;cx.fill();
+      for(let j=i+1;j<N;j++){const q=P[j];const dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);if(d<110){cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.strokeStyle=`rgba(${p.c},${.055*(1-d/110)})`;cx.lineWidth=.5;cx.stroke();}}
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+</body>
+</html>
